@@ -1,7 +1,7 @@
 ---
 id: US-003
 title: Evaluar el modelo con clientes no vistos
-status: ready
+status: in-progress
 priority: high
 epic: EP-001
 ---

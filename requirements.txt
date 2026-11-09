@@ -4,5 +4,5 @@ scikit-learn==1.6.1
 tensorflow==2.21.0
 shap
 streamlit
-matplotlib
+matplotlib==3.11.2
 joblib==1.6.0
