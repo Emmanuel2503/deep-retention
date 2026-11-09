@@ -1,0 +1,56 @@
+{
+  "features": [
+    "CreditScore",
+    "Geography",
+    "Gender",
+    "Age",
+    "Tenure",
+    "Balance",
+    "NumOfProducts",
+    "HasCrCard",
+    "IsActiveMember",
+    "EstimatedSalary",
+    "Satisfaction Score",
+    "Card Type",
+    "Point Earned"
+  ],
+  "excluded": [
+    {
+      "feature": "RowNumber",
+      "reason": "identificador",
+      "correlation": null
+    },
+    {
+      "feature": "CustomerId",
+      "reason": "identificador",
+      "correlation": null
+    },
+    {
+      "feature": "Surname",
+      "reason": "identificador",
+      "correlation": null
+    },
+    {
+      "feature": "Complain",
+      "reason": "fuga de datos",
+      "correlation": 0.9956092957090718
+    }
+  ],
+  "categories": {
+    "Geography": [
+      "France",
+      "Germany",
+      "Spain"
+    ],
+    "Gender": [
+      "Female",
+      "Male"
+    ],
+    "Card Type": [
+      "DIAMOND",
+      "GOLD",
+      "PLATINUM",
+      "SILVER"
+    ]
+  }
+}

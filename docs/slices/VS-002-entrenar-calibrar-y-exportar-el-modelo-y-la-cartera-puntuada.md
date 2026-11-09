@@ -81,14 +81,14 @@ class ChurnPredictor:
 - [x] **T-04:** Implementar `fit_calibrator` → AC-03
 - [x] **T-05:** Implementar `run_training` con la semilla de Keras y la exportación de artefactos y de la Cartera puntuada → AC-03
 - [x] **T-06:** Implementar `ChurnPredictor` → AC-03
-- [ ] **T-07:** Crear `notebooks/02_train.ipynb`, entrenar en Colab, comprobar que Colab usa Python 3.12 (si no, avisar al equipo antes de seguir), fijar en `requirements.txt` las versiones impresas y versionar `models/` → AC-03
+- [x] **T-07:** Crear `notebooks/02_train.ipynb`, entrenar en Colab, comprobar que Colab usa Python 3.12 o 3.13 (si no, avisar al equipo antes de seguir), fijar en `requirements.txt` las versiones impresas y versionar `models/` → AC-03
 
 ## Tests
 | AC | What the test verifies | Type | Location |
 |---|---|---|---|
 | AC-01 | Dos llamadas a `split_data(load_dataset())` en el notebook devuelven los mismos `CustomerId` por partición (comparar conjuntos), con 7,000/1,500/1,500 clientes y abandono 0.204 ± 0.005 en cada una | manual | `notebooks/02_train.ipynb` |
 | AC-02 | `PATIENCE` está entre 10 y 15; en el resultado del entrenamiento, `stopped_epoch − best_epoch` = `PATIENCE`, y la celda imprime `val_loss[best_epoch]` del historial junto a `model.evaluate` del modelo recargado sobre la validación: la diferencia es < 1e-4 | manual | `notebooks/02_train.ipynb` |
-| AC-03 | En el `venv/` local con Python 3.12, creado con pip o con uv (no en Colab), tras `pip install -r requirements.txt`: `ChurnPredictor.load()` predice para los 10,000 clientes valores en [0, 1] sin errores ni avisos de versión; `models/portfolio_scored.csv` tiene 10,000 filas, las columnas de ADR-0002 y `p_churn` en [0, 1] | manual | terminal local (`venv/bin/python`) |
+| AC-03 | En el `venv/` local con Python 3.12 o 3.13, creado con pip o con uv (no en Colab), tras `pip install -r requirements.txt`: `ChurnPredictor.load()` predice para los 10,000 clientes valores en [0, 1] sin errores ni avisos de versión; `models/portfolio_scored.csv` tiene 10,000 filas, las columnas de ADR-0002 y `p_churn` en [0, 1] | manual | terminal local (`venv/bin/python`) |
 
 ## Out of scope
 - Métricas sobre los Clientes de prueba → VS-003.
@@ -98,9 +98,9 @@ class ChurnPredictor:
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Gabriel (turno 1)

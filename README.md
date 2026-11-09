@@ -116,7 +116,7 @@ Reglas de arquitectura ([ADRs](docs/adrs/)):
 
 ### Requisitos
 
-- **Python 3.12**, la misma versión que usa Google Colab. TensorFlow no tiene paquetes para Python 3.14, y las versiones fijadas en `requirements.txt` son las de Colab.
+- **Python 3.12 o 3.13** (`>=3.12, <3.14`). TensorFlow no tiene paquetes para Python 3.14. Colab usa 3.13 y las versiones fijadas en `requirements.txt` son las de Colab; todas tienen paquetes para 3.12 y 3.13.
 - El entorno virtual se llama **`venv/`**, en la raíz del repositorio (no `.venv/`).
 - Para el informe en PDF: pandoc y xelatex.
 
@@ -124,24 +124,24 @@ Elige una de las dos opciones de instalación.
 
 ### Opción A: pip
 
-Requiere Python 3.12 instalado en el sistema (Fedora: `sudo dnf install python3.12`).
+Requiere Python 3.12 o 3.13 instalado en el sistema (Fedora: `sudo dnf install python3.13`). Los ejemplos usan 3.13; con 3.12, cambia `python3.13` por `python3.12`.
 
 ```bash
 git clone https://github.com/Emmanuel2503/deep-retention.git
 cd deep-retention
-python3.12 -m venv venv
+python3.13 -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
 ### Opción B: uv
 
-[uv](https://docs.astral.sh/uv/) instala Python 3.12 sin tocar el Python del sistema. Si `uv venv` responde "No interpreter found for Python 3.12", instálalo primero con `uv python install 3.12`.
+[uv](https://docs.astral.sh/uv/) instala Python 3.13 sin tocar el Python del sistema (también sirve 3.12). Si `uv venv` responde "No interpreter found for Python 3.13", instálalo primero con `uv python install 3.13`.
 
 ```bash
 git clone https://github.com/Emmanuel2503/deep-retention.git
 cd deep-retention
-uv venv --python 3.12 --seed venv   # --seed instala pip dentro de venv/
+uv venv --python 3.13 --seed venv   # --seed instala pip dentro de venv/
 source venv/bin/activate            # Windows: venv\Scripts\activate
 uv pip install -r requirements.txt
 ```
@@ -179,4 +179,4 @@ pandoc reports/informe.md -o reports/informe_ejecutivo.pdf --pdf-engine=xelatex 
 
 ### Despliegue en Streamlit Community Cloud
 
-Al crear la app, elige **Python 3.12** en "Advanced settings". Streamlit Cloud instala `requirements.txt` por su cuenta y ejecuta `app/app.py`.
+Al crear la app, elige **Python 3.13** (o 3.12) en "Advanced settings". Streamlit Cloud instala `requirements.txt` por su cuenta y ejecuta `app/app.py`.
