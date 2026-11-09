@@ -13,6 +13,7 @@ import pandas as pd
 from src.config import MODELS_DIR
 
 EPS = 1e-7
+PREDICT_BATCH = 65536
 
 # Columnas de la Cartera puntuada, en orden (contrato de ADR-0002).
 PORTFOLIO_DATA_COLUMNS = [
@@ -72,7 +73,12 @@ class ChurnPredictor:
         return self.preprocessor.transform(df[self.features])
 
     def _raw_from_transformed(self, X: np.ndarray) -> np.ndarray:
-        return np.asarray(self.model.predict(X, batch_size=1024, verbose=0)).ravel()
+        # predict_on_batch evita la preparación de tf.data de model.predict en cada llamada;
+        # SHAP llama a la red cientos de veces con lotes de miles de filas.
+        X = X.toarray() if hasattr(X, "toarray") else X
+        X = np.asarray(X, dtype="float32")
+        out = [self.model.predict_on_batch(X[i : i + PREDICT_BATCH]) for i in range(0, len(X), PREDICT_BATCH)]
+        return np.concatenate([np.asarray(o).ravel() for o in out]) if out else np.empty(0)
 
     def predict_raw(self, df: pd.DataFrame) -> np.ndarray:
         return self._raw_from_transformed(self.transform(df))
