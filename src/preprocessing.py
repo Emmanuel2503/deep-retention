@@ -3,8 +3,11 @@ from pathlib import Path
 from typing import TypedDict
 
 import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from src.config import DATA_PATH
+from src.config import DATA_PATH, SEED
 
 TARGET = "Exited"
 ID_COLUMNS = ["RowNumber", "CustomerId", "Surname"]
@@ -90,6 +93,44 @@ def excluded_features(df: pd.DataFrame) -> list[ExcludedFeature]:
     ]
 
 
-def input_features(df: pd.DataFrame) -> list[str]:
-    excluded = {item["feature"] for item in excluded_features(df)}
-    return [col for col in df.columns if col != TARGET and col not in excluded]
+def input_features(
+    df: pd.DataFrame, excluded: list[ExcludedFeature] | None = None
+) -> list[str]:
+    """Columnas de df menos TARGET y las excluidas.
+
+    `excluded` permite reutilizar una lista ya calculada (por ejemplo, sobre la
+    partición de entrenamiento) en lugar de recalcular las correlaciones con df.
+    """
+    if excluded is None:
+        excluded = excluded_features(df)
+    names = {item["feature"] for item in excluded}
+    return [col for col in df.columns if col != TARGET and col not in names]
+
+
+def split_data(
+    df: pd.DataFrame, seed: int = SEED
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Partición 70/15/15 estratificada por TARGET: (entrenamiento, validación, prueba)."""
+    train, rest = train_test_split(
+        df, test_size=0.30, stratify=df[TARGET], random_state=seed
+    )
+    val, test = train_test_split(
+        rest, test_size=0.50, stratify=rest[TARGET], random_state=seed
+    )
+    return train, val, test
+
+
+def build_preprocessor(features: list[str]) -> ColumnTransformer:
+    """StandardScaler para las numéricas y OneHotEncoder para las categóricas."""
+    categorical = [col for col in features if col in CATEGORICAL]
+    numeric = [col for col in features if col not in CATEGORICAL]
+    return ColumnTransformer(
+        [
+            ("num", StandardScaler(), numeric),
+            (
+                "cat",
+                OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                categorical,
+            ),
+        ]
+    )
