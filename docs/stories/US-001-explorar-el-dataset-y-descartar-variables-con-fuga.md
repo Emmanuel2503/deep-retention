@@ -1,7 +1,7 @@
 ---
 id: US-001
 title: Explorar el dataset y descartar variables con fuga
-status: ready
+status: done
 priority: high
 epic: EP-001
 ---

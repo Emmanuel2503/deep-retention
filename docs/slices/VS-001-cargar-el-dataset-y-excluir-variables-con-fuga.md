@@ -1,7 +1,7 @@
 ---
 id: VS-001
 title: Cargar el dataset y excluir variables con fuga
-status: ready
+status: done
 story: US-001
 covers: [AC-01, AC-02, AC-03]
 adrs: []
@@ -53,10 +53,10 @@ input_features(df) -> list[str]                       # columnas - TARGET - excl
 ```
 
 ## Tasks
-- [ ] **T-01:** Crear `src/config.py`, `requirements.txt` y mover el dataset a `data/` → none
-- [ ] **T-02:** Implementar `load_dataset` y `dataset_summary` → AC-01
-- [ ] **T-03:** Implementar `feature_correlations`, `find_leaky_features` y `excluded_features` → AC-02, AC-03
-- [ ] **T-04:** Crear `notebooks/01_eda.ipynb` que llame a las funciones y grafique distribuciones y correlaciones → AC-01, AC-02
+- [x] **T-01:** Crear `src/config.py`, `requirements.txt` y mover el dataset a `data/` → none
+- [x] **T-02:** Implementar `load_dataset` y `dataset_summary` → AC-01
+- [x] **T-03:** Implementar `feature_correlations`, `find_leaky_features` y `excluded_features` → AC-02, AC-03
+- [x] **T-04:** Crear `notebooks/01_eda.ipynb` que llame a las funciones y grafique distribuciones y correlaciones → AC-01, AC-02
 
 ## Tests
 | AC | What the test verifies | Type | Location |
@@ -72,9 +72,9 @@ input_features(df) -> list[str]                       # columnas - TARGET - excl
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Gabriel (turno 1)

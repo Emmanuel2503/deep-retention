@@ -1,7 +1,7 @@
 ---
 id: EP-001
 title: Estimar el riesgo de fuga
-status: ready
+status: in-progress
 priority: high
 requirements: [FR-01, FR-02]
 ---

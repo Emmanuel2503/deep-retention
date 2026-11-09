@@ -136,7 +136,7 @@ pip install -r requirements.txt
 
 ### Opción B: uv
 
-[uv](https://docs.astral.sh/uv/) descarga Python 3.12 si no lo tienes, sin tocar el Python del sistema.
+[uv](https://docs.astral.sh/uv/) instala Python 3.12 sin tocar el Python del sistema. Si `uv venv` responde "No interpreter found for Python 3.12", instálalo primero con `uv python install 3.12`.
 
 ```bash
 git clone https://github.com/Emmanuel2503/deep-retention.git
