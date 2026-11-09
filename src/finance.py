@@ -92,3 +92,20 @@ def segment_matrix(scored: pd.DataFrame, params) -> pd.DataFrame:
             "Ganancia neta esperada": float(int_seg["expected_gain"].sum()),
         })
     return pd.DataFrame(rows, index=list(SEGMENT_INFO))
+
+
+# --- ROI realizado (VS-012) ---
+
+
+def realized_roi(scored: pd.DataFrame) -> float | None:
+    """ROI realizado de SRS/BR-06 sobre los Clientes de prueba con Incentivo asignado.
+
+    Usa el abandono real (`Exited`) en lugar de la Probabilidad de fuga, así que puede
+    ser negativo. None si ningún Cliente de prueba tiene Incentivo.
+    """
+    test = _intervened(scored[scored["split"] == "test"])
+    investment = float(test["incentive_cost"].sum())
+    if len(test) == 0 or investment == 0:
+        return None
+    realized = float((test["Exited"] * test["incentive_effectiveness"] * test["margin"]).sum())
+    return (realized - investment) / investment
