@@ -1,7 +1,7 @@
 ---
 id: VS-002
 title: Entrenar, calibrar y exportar el modelo y la cartera puntuada
-status: in-progress
+status: done
 story: US-002
 covers: [AC-01, AC-02, AC-03]
 adrs: [ADR-0002]

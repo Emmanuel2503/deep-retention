@@ -1,7 +1,7 @@
 ---
 id: US-002
 title: Entrenar y exportar el modelo de fuga
-status: in-progress
+status: done
 priority: high
 epic: EP-001
 ---
