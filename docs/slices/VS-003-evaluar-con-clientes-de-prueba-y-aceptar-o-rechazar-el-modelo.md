@@ -1,7 +1,7 @@
 ---
 id: VS-003
 title: Evaluar con clientes de prueba y aceptar o rechazar el modelo
-status: in-progress
+status: done
 story: US-003
 covers: [AC-01, AC-02, AC-03]
 adrs: []
@@ -41,7 +41,7 @@ run_evaluation(models_dir=MODELS_DIR, reports_dir=REPORTS_DIR) -> Metrics
 - [x] **T-01:** Implementar `evaluate` sobre los Clientes de prueba → AC-01, AC-02
 - [x] **T-02:** Implementar `is_accepted` → AC-03
 - [x] **T-03:** Implementar `run_evaluation` con `metrics.json` y la curva de fiabilidad → AC-02
-- [ ] **T-04:** Agregar la celda de evaluación al notebook y versionar los artefactos → AC-01
+- [x] **T-04:** Agregar la celda de evaluación al notebook y versionar los artefactos → AC-01
 
 ## Tests
 | AC | What the test verifies | Type | Location |
@@ -57,9 +57,9 @@ run_evaluation(models_dir=MODELS_DIR, reports_dir=REPORTS_DIR) -> Metrics
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Gabriel (turno 1)
