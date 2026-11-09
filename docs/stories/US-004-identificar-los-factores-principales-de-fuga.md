@@ -1,7 +1,7 @@
 ---
 id: US-004
 title: Identificar los factores principales de fuga
-status: in-progress
+status: done
 priority: medium
 epic: EP-001
 ---

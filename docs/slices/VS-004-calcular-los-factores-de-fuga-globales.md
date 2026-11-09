@@ -1,7 +1,7 @@
 ---
 id: VS-004
 title: Calcular los factores de fuga globales
-status: in-progress
+status: done
 story: US-004
 covers: [AC-01]
 adrs: []
@@ -50,7 +50,7 @@ shap_summary_path(reports_dir=REPORTS_DIR) -> Path   # reports_dir/figures/shap_
 ## Tasks
 - [x] **T-01:** Implementar `background_sample` y `build_explainer` → AC-01
 - [x] **T-02:** Implementar `global_factors` por variable original → AC-01
-- [ ] **T-03:** Implementar `run_global_explanation` y la figura; ejecutarla en Colab y versionar los artefactos → AC-01
+- [x] **T-03:** Implementar `run_global_explanation` y la figura; ejecutarla en Colab y versionar los artefactos → AC-01
 
 ## Tests
 | AC | What the test verifies | Type | Location |
@@ -64,9 +64,9 @@ shap_summary_path(reports_dir=REPORTS_DIR) -> Path   # reports_dir/figures/shap_
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Gabriel (turno 1)
