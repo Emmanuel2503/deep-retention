@@ -1,7 +1,7 @@
 ---
 id: VS-005
 title: Consultar un cliente y ver su decisión de retención
-status: ready
+status: done
 story: US-005
 covers: [AC-01, AC-02, AC-04]
 adrs: [ADR-0002, ADR-0007]

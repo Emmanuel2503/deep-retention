@@ -1,0 +1,6 @@
+CustomerId,Balance,NumOfProducts,HasCrCard,p_churn,split,Exited 
+1001,100000,2,1,0.80,test,1 
+1002,0,1,0,0.50,test,0 
+1003,100000,2,1,0.10,train,0 
+1004,0,1,0,0.70,val,1 
+1005,0,1,0,0.40,train,0
