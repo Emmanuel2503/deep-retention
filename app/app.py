@@ -81,13 +81,12 @@ def render_cartera(scored_cartera: pd.DataFrame, params: Params):
     st.dataframe(counts.style.format({"Clientes": "{:,}"}), width="stretch", hide_index=True)
 
     st.subheader("Matriz por segmento")
+    matrix = segment_matrix(scored_cartera, params)
+    money_cols = ["Inversión en retención", "Ganancia neta esperada"]
+    count_cols = [c for c in matrix.columns[3:] if c not in money_cols]
     st.dataframe(
-        segment_matrix(scored_cartera, params),
+        matrix.style.format({**{c: "{:,}" for c in count_cols}, **{c: money for c in money_cols}}),
         width="stretch",
-        column_config={
-            "Inversión en retención": st.column_config.NumberColumn(format="dollar"),
-            "Ganancia neta esperada": st.column_config.NumberColumn(format="dollar"),
-        },
     )
 
     # Nota metodológica de EP-003/BR-01.
