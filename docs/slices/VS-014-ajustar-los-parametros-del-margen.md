@@ -1,7 +1,7 @@
 ---
 id: VS-014
 title: Ajustar los parámetros del margen
-status: ready
+status: done
 story: US-012
 covers: [AC-01, AC-02]
 adrs: [ADR-0007]
@@ -38,8 +38,8 @@ number_input key="spread" (%), "fee_per_product", "fee_card", "service_cost", on
 ```
 
 ## Tasks
-- [ ] **T-01:** Implementar `validate_margin_params` y extender `widget_defaults` → AC-02
-- [ ] **T-02:** Crear las entradas del margen y actualizar `params` en el callback → AC-01
+- [x] **T-01:** Implementar `validate_margin_params` y extender `widget_defaults` → AC-02
+- [x] **T-02:** Crear las entradas del margen y actualizar `params` en el callback → AC-01
 
 ## Tests
 Con `DEEP_RETENTION_PORTFOLIO=data/fixtures/portfolio_cases.csv` (ADR-0006).
@@ -56,9 +56,9 @@ Con `DEEP_RETENTION_PORTFOLIO=data/fixtures/portfolio_cases.csv` (ADR-0006).
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Emmanuel (turno 3)

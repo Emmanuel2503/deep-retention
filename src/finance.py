@@ -291,10 +291,15 @@ def with_incentive(params: Params, index: int, cost: float, effectiveness: float
 
 
 def widget_defaults(params: Params) -> dict[str, float]:
-    """Valores de las entradas del Simulador para `params`; la Efectividad, en porcentaje."""
+    """Valores de las entradas del Simulador para `params`; la Efectividad y el Spread, en porcentaje."""
     defaults = {}
     for i, inc in enumerate(params.incentives):
         defaults[f"cost_{i}"] = inc.cost
         # round: 0.4 * 100 da 40.00000000000001 en coma flotante.
         defaults[f"eff_{i}"] = round(inc.effectiveness * 100, 6)
+    # Margen del cliente (VS-014).
+    defaults["spread"] = round(params.spread * 100, 6)
+    defaults["fee_per_product"] = params.fee_per_product
+    defaults["fee_card"] = params.fee_card
+    defaults["service_cost"] = params.service_cost
     return defaults

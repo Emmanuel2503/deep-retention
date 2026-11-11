@@ -3,6 +3,7 @@ Aplicación Principal - Deep Retention
 """
 
 import os
+from dataclasses import replace
 import pandas as pd
 import streamlit as st
 import sys
@@ -14,7 +15,9 @@ from src.finance import (
     segment_matrix, widget_defaults, with_incentive,
 )
 from src.inference import load_portfolio
-from src.validation import NOT_FOUND, parse_customer_id, validate_incentive
+from src.validation import NOT_FOUND, parse_customer_id, validate_incentive, validate_margin_params
+
+MARGIN_FIELDS = ["spread", "fee_per_product", "fee_card", "service_cost"]
 
 
 def render_buscador(scored_cartera: pd.DataFrame, params: Params, mediana_cartera: float):
@@ -123,6 +126,26 @@ def on_incentive_change(i: int):
         st.session_state["sim_errors"][f"incentive_{i}"] = error
 
 
+def on_margin_change():
+    """Callback de los parámetros del margen (VS-014, ADR-0007): valida los cuatro juntos."""
+    values = {f: st.session_state[f] for f in MARGIN_FIELDS}
+    errors = validate_margin_params(*(values[f] for f in MARGIN_FIELDS))
+    sim_errors = st.session_state["sim_errors"]
+    for f in MARGIN_FIELDS:
+        sim_errors.pop(f"margin_{f}", None)
+    if errors:
+        # Valores inválidos: se conservan los parámetros anteriores (EP-004/BR-03).
+        sim_errors.update({f"margin_{f}": msg for f, msg in errors.items()})
+    else:
+        st.session_state["params"] = replace(
+            st.session_state["params"],
+            spread=values["spread"] / 100,
+            fee_per_product=float(values["fee_per_product"]),
+            fee_card=float(values["fee_card"]),
+            service_cost=float(values["service_cost"]),
+        )
+
+
 def render_simulador(params: Params):
     st.header("Simulador de Parámetros")
 
@@ -132,6 +155,14 @@ def render_simulador(params: Params):
         c1.markdown(f"**{inc.name}**")
         c2.number_input("Costo ($)", key=f"cost_{i}", step=10.0, on_change=on_incentive_change, args=(i,))
         c3.number_input("Efectividad (%)", key=f"eff_{i}", step=1.0, on_change=on_incentive_change, args=(i,))
+
+    st.subheader("Margen del cliente")
+    st.caption("Margen = Balance × Spread + Productos × Comisión por producto + Tarjeta × Comisión por tarjeta − Costo de servicio")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.number_input("Spread (%)", key="spread", step=0.5, on_change=on_margin_change)
+    c2.number_input("Comisión por producto ($)", key="fee_per_product", step=5.0, on_change=on_margin_change)
+    c3.number_input("Comisión por tarjeta ($)", key="fee_card", step=5.0, on_change=on_margin_change)
+    c4.number_input("Costo de servicio ($)", key="service_cost", step=5.0, on_change=on_margin_change)
 
     for error in st.session_state["sim_errors"].values():
         st.error(error)

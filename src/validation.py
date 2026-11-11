@@ -25,3 +25,21 @@ def validate_incentive(cost: float, effectiveness_pct: float) -> str | None:
     if effectiveness_pct is None or not 0 <= effectiveness_pct <= 100:
         return EFFECTIVENESS_ERROR
     return None
+
+def validate_margin_params(spread_pct: float, fee_per_product: float, fee_card: float,
+                           service_cost: float) -> dict[str, str]:
+    """Campo → mensaje con el rango permitido (US-012/AC-02); {} si todo es válido.
+
+    El Spread llega en porcentaje (0..100), como en el Simulador.
+    """
+    errors = {}
+    if spread_pct is None or not 0 <= spread_pct <= 100:
+        errors["spread"] = "El spread debe estar entre 0% y 100%"
+    for field, value, label in [
+        ("fee_per_product", fee_per_product, "La comisión por producto"),
+        ("fee_card", fee_card, "La comisión por tarjeta"),
+        ("service_cost", service_cost, "El costo de servicio"),
+    ]:
+        if value is None or value < 0:
+            errors[field] = f"{label} debe ser ≥ 0"
+    return errors
