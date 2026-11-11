@@ -1,7 +1,7 @@
 """
 Módulo de Lógica Financiera y Reglas de Negocio (Deep Retention)
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Dict, Optional, Union
 import pandas as pd
 import numpy as np
@@ -278,3 +278,23 @@ def realized_roi(scored: pd.DataFrame) -> float | None:
         return None
     realized = float((test["Exited"] * test["incentive_effectiveness"] * test["margin"]).sum())
     return (realized - investment) / investment
+
+
+# --- Simulador: Incentivos (VS-013) ---
+
+
+def with_incentive(params: Params, index: int, cost: float, effectiveness: float) -> Params:
+    """Copia de `params` con el costo y la Efectividad (0..1) del Incentivo `index` cambiados."""
+    incentives = list(params.incentives)
+    incentives[index] = replace(incentives[index], cost=float(cost), effectiveness=float(effectiveness))
+    return replace(params, incentives=tuple(incentives))
+
+
+def widget_defaults(params: Params) -> dict[str, float]:
+    """Valores de las entradas del Simulador para `params`; la Efectividad, en porcentaje."""
+    defaults = {}
+    for i, inc in enumerate(params.incentives):
+        defaults[f"cost_{i}"] = inc.cost
+        # round: 0.4 * 100 da 40.00000000000001 en coma flotante.
+        defaults[f"eff_{i}"] = round(inc.effectiveness * 100, 6)
+    return defaults

@@ -11,10 +11,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.finance import (
     DEFAULT_PARAMS, Params, evaluate_customer, portfolio_kpis, realized_roi, score_portfolio,
-    segment_matrix,
+    segment_matrix, widget_defaults, with_incentive,
 )
 from src.inference import load_portfolio
-from src.validation import NOT_FOUND, parse_customer_id
+from src.validation import NOT_FOUND, parse_customer_id, validate_incentive
 
 
 def render_buscador(scored_cartera: pd.DataFrame, params: Params, mediana_cartera: float):
@@ -109,8 +109,32 @@ def render_cartera(scored_cartera: pd.DataFrame, params: Params):
         st.caption("El 85% de estos clientes se usó para entrenar o calibrar la red.")
 
 
+def on_incentive_change(i: int):
+    """Callback del Incentivo i (ADR-0007): corre antes del script, así que las tres
+    pestañas usan los parámetros nuevos en la misma ejecución."""
+    cost = st.session_state[f"cost_{i}"]
+    eff_pct = st.session_state[f"eff_{i}"]
+    error = validate_incentive(cost, eff_pct)
+    if error is None:
+        st.session_state["params"] = with_incentive(st.session_state["params"], i, cost, eff_pct / 100)
+        st.session_state["sim_errors"].pop(f"incentive_{i}", None)
+    else:
+        # Valor inválido: se conservan los parámetros anteriores (US-011/BR-03).
+        st.session_state["sim_errors"][f"incentive_{i}"] = error
+
+
 def render_simulador(params: Params):
     st.header("Simulador de Parámetros")
+
+    st.subheader("Incentivos")
+    for i, inc in enumerate(params.incentives):
+        c1, c2, c3 = st.columns([2, 1, 1])
+        c1.markdown(f"**{inc.name}**")
+        c2.number_input("Costo ($)", key=f"cost_{i}", step=10.0, on_change=on_incentive_change, args=(i,))
+        c3.number_input("Efectividad (%)", key=f"eff_{i}", step=1.0, on_change=on_incentive_change, args=(i,))
+
+    for error in st.session_state["sim_errors"].values():
+        st.error(error)
 
 
 def main():
@@ -121,6 +145,10 @@ def main():
     if "params" not in st.session_state:
         st.session_state["params"] = DEFAULT_PARAMS
     params: Params = st.session_state["params"]
+    # Claves de las entradas del Simulador (VS-013): sin `value` en el widget, su valor vive aquí.
+    for k, v in widget_defaults(params).items():
+        st.session_state.setdefault(k, v)
+    st.session_state.setdefault("sim_errors", {})
 
     # 2. Cargar y puntuar cartera de forma defensiva
     try:
