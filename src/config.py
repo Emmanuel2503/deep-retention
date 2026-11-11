@@ -9,11 +9,9 @@ MODELS_DIR = REPO_ROOT / "models"
 REPORTS_DIR = REPO_ROOT / "reports"
 SEED = 42
 
-def portfolio_path() -> Path: 
-    env_path = os.getenv("DEEP_RETENTION_PORTFOLIO") 
-    if env_path: 
-        return Path(env_path) 
-    scored_path = MODELS_DIR / "portfolio_scored.csv" 
-    if scored_path.exists():
-         return scored_path 
-    return DATA_DIR / "fixtures" / "portfolio_cases.csv"
+def portfolio_path() -> Path:
+    """DEEP_RETENTION_PORTFOLIO si existe; si no, la Cartera puntuada real (ADR-0002)."""
+    env_path = os.getenv("DEEP_RETENTION_PORTFOLIO")
+    if env_path:
+        return Path(env_path)
+    return MODELS_DIR / "portfolio_scored.csv"

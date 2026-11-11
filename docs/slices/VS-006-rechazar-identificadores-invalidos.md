@@ -36,8 +36,8 @@ ningún st.metric de resultados en ambos casos
 ```
 
 ## Tasks
-- [ ] **T-01:** Implementar `parse_customer_id` → AC-03
-- [ ] **T-02:** Mostrar los mensajes en "Buscador" y omitir los resultados → AC-03
+- [x] **T-01:** Implementar `parse_customer_id` → AC-03
+- [x] **T-02:** Mostrar los mensajes en "Buscador" y omitir los resultados → AC-03
 
 ## Tests
 | AC | What the test verifies | Type | Location |
@@ -51,9 +51,9 @@ ningún st.metric de resultados en ambos casos
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Ainhoa (turno 2)
