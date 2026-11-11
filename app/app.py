@@ -13,7 +13,9 @@ from src.finance import (
     DEFAULT_PARAMS, Params, evaluate_customer, median_positive_margin, score_portfolio 
 ) 
 from src.inference import ChurnPredictor, load_portfolio
-from src.validation import ID_ERROR, NOT_FOUND, parse_customer_id
+from src.validation import ( 
+    ID_ERROR, NOT_FOUND, parse_customer_id, validate_customer 
+)
 
 @st.cache_resource 
 def obtener_predictor(): 
@@ -114,60 +116,76 @@ def main():
                 submitted = st.form_submit_button("Evaluar") 
 
             if submitted: 
-                has_card_val = 1 if has_cr_card else 0 
-                active_val = 1 if is_active_member else 0 
-
-                datos_cliente = { 
+                valores_formulario = { 
                     "CreditScore": credit_score, 
-                    "Geography": geography, 
-                    "Gender": gender, 
                     "Age": age, 
                     "Tenure": tenure, 
                     "Balance": balance, 
-                    "NumOfProducts": num_products, 
-                    "HasCrCard": has_card_val, 
-                    "IsActiveMember": active_val, 
+                    "NumOfProducts": num_products,
                     "EstimatedSalary": estimated_salary, 
                     "Satisfaction Score": satisfaction_score, 
-                    "Card Type": card_type, 
-                    "Point Earned": point_earned 
+                    "Point Earned": point_earned, 
                 } 
-
-                df_nuevo = pd.DataFrame([datos_cliente]) 
-
-                if predictor is not None: 
-                    try: 
-                        p_churn = float(predictor.predict(df_nuevo)[0]) 
-                    except Exception: 
-                        p_churn = 0.70 
-
+                
+                errores = validate_customer(valores_formulario) 
+                
+                if errores: 
+                    for msg in errores.values(): 
+                        st.error(msg) 
                 else: 
+                    has_card_val = 1 if has_cr_card else 0 
+                    active_val = 1 if is_active_member else 0 
+
+                    datos_cliente = { 
+                        "CreditScore": credit_score, 
+                        "Geography": geography, 
+                        "Gender": gender, 
+                        "Age": age, 
+                        "Tenure": tenure, 
+                        "Balance": balance, 
+                        "NumOfProducts": num_products, 
+                        "HasCrCard": has_card_val, 
+                        "IsActiveMember": active_val, 
+                        "EstimatedSalary": estimated_salary, 
+                        "Satisfaction Score": satisfaction_score, 
+                        "Card Type": card_type, 
+                        "Point Earned": point_earned, 
+                    } 
+
+                    df_nuevo = pd.DataFrame([datos_cliente]) 
+
+                    if predictor is not None: 
+                        try: 
+                            p_churn = float(predictor.predict(df_nuevo)) 
+                        except Exception: 
+                            p_churn = 0.70 
+                    else: 
                         p_churn = 0.70 
 
-                res = evaluate_customer( 
-                    p_churn=p_churn, 
-                    balance=float(balance), 
-                    num_products=int(num_products), 
-                    has_card=has_card_val, 
-                    median=mediana_cartera, 
-                    params=params 
-                ) 
+                    res = evaluate_customer( 
+                        p_churn=p_churn, 
+                        balance=float(balance), 
+                        num_products=int(num_products), 
+                        has_card=has_card_val, 
+                        median=mediana_cartera, 
+                        params=params 
+                    ) 
 
-                st.markdown("---") 
-                st.subheader("Resultados de Evaluación") 
-                col1, col2, col3, col4 = st.columns(4) 
-                col1.metric("Probabilidad de fuga", f"{res.p_churn:.2f}") 
-                col2.metric("Margen del cliente", f"${res.margin:,.2f}" if res.margin >= 0 else f"-${abs(res.margin):,.2f}") 
-                col3.metric("Segmento", res.segment) 
-                col4.metric("Decisión de retención", res.decision.label) 
-
-                st.markdown("---") 
-                st.write("Ganancias Netas Esperadas por Incentivo") 
-                df_gains = pd.DataFrame([ 
-                    {"Incentivo": nombre, "Ganancia neta esperada": f"${g:,.2f}" if g >= 0 else f"-${abs(g):,.2f}"} 
-                    for nombre, g in res.decision.gains.items() 
-                ]) 
-                st.dataframe(df_gains, use_container_width=True) 
+                    st.markdown("---") 
+                    st.subheader("Resultados de Evaluación") 
+                    
+                    col1, col2, col3, col4 = st.columns(4) 
+                    col1.metric("Probabilidad de fuga", f"{res.p_churn:.2f}") 
+                    col2.metric("Margen del cliente", f"${res.margin:,.2f}" if res.margin >= 0 else f"-${abs(res.margin):,.2f}") 
+                    col3.metric("Segmento", res.segment) 
+                    col4.metric("Decisión de retención", res.decision.label) 
+                    st.markdown("---") 
+                    st.write("### Ganancias Netas Esperadas por Incentivo") 
+                    df_gains = pd.DataFrame([ 
+                        {"Incentivo": nombre, "Ganancia neta esperada": f"${g:,.2f}" if g >= 0 else f"-${abs(g):,.2f}"} 
+                        for nombre, g in res.decision.gains.items() 
+                    ]) 
+                    st.dataframe(df_gains, use_container_width=True)
 
     with tab2: 
         st.header("Panel de Cartera")
