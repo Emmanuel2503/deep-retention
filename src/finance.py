@@ -1,60 +1,58 @@
 """ 
 Módulo de Lógica Financiera y Reglas de Negocio (Deep Retention) 
 """ 
-from dataclasses import dataclass 
-from operator import gt
-from typing import Dict, Any, Optional 
+from dataclasses import dataclass, field 
+from typing import Dict, List, Optional, Union 
 import pandas as pd 
+import numpy as np 
 
 SALIDA_PERMITIDA = "Salida Permitida" 
 SIN_ACCION = "Sin Acción Requerida" 
 HIGH_RISK = 0.65 
 LOW_RISK = 0.30 
 
-DEFAULT_PARAMS: Dict[str, Any] = { 
-    "spread": 0.02, 
-    "comision_producto": 50.0, 
-    "comision_tarjeta": 30.0, 
-    "costo_servicio": 60.0, 
-    "incentivos": [ 
-        {"nombre": "Gestor VIP y tarifa plana", "costo": 500.0, "efectividad": 0.40}, 
-        {"nombre": "Exoneración de comisiones", "costo": 150.0, "efectividad": 0.30}, 
-        {"nombre": "Bonificación transaccional", "costo": 50.0, "efectividad": 0.20}, 
-    ] 
-} 
+@dataclass(frozen=True) 
+class Incentive: 
+    nombre: str 
+    costo: float 
+    efectividad: float 
+    
+@dataclass(frozen=True) 
+class Params: 
+    spread: float = 0.02 
+    comision_producto: float = 50.0 
+    comision_tarjeta: float = 30.0 
+    costo_servicio: float = 60.0 
+    incentivos: List[Incentive] = field(default_factory=lambda: [ 
+        Incentive("Gestor VIP y tarifa plana", 500.0, 0.40), 
+        Incentive("Exoneración de comisiones", 150.0, 0.30), 
+        Incentive("Bonificación transaccional", 50.0, 0.20), 
+    ]) 
 
-def customer_margin(balance: float, num_products: int, has_card: int, params: Optional[Dict[str, Any]] = None) -> float: 
-    p = params if params is not None else DEFAULT_PARAMS 
-    spread = p.get("spread", 0.02) 
-    comision_prod = p.get("comision_producto", 50.0) 
-    comision_tarj = p.get("comision_tarjeta", 30.0) 
-    costo_serv = p.get("costo_servicio", 60.0) 
+DEFAULT_PARAMS = Params() 
 
-    margen = (balance * spread) + (num_products * comision_prod) + (has_card * comision_tarj) - costo_serv 
+def customer_margin( 
+    balance: Union[float, pd.Series], 
+    num_products: Union[int, pd.Series], 
+    has_card: Union[int, pd.Series], 
+    params: Params 
+    ) -> Union[float, pd.Series]: 
+    margen = ( 
+        (balance * params.spread) 
+        + (num_products * params.comision_producto) 
+        + (has_card * params.comision_tarjeta) 
+        - params.costo_servicio 
+    ) 
+    if isinstance(margen, pd.Series): 
+        return margen.round(2) 
     return round(float(margen), 2) 
 
-def expected_net_gains(p: float, margin: float, params: Optional[Dict[str, Any]] = None) -> Dict[str, float]: 
-    par = params if params is not None else DEFAULT_PARAMS 
-    incentivos = par.get("incentivos", DEFAULT_PARAMS["incentivos"]) 
+def expected_net_gains(p: float, margin: float, params: Params) -> Dict[str, float]: 
     gains = {} 
-    for inc in incentivos: 
-        nombre = inc["nombre"] 
-        costo = float(inc["costo"]) 
-        efectividad = float(inc["efectividad"]) 
-        gne = (p * efectividad * margin) - costo 
-        gains[nombre] = round(float(gne), 2) 
+    for inc in params.incentivos: 
+        gne = (p * inc.efectividad * margin) - inc.costo 
+        gains[inc.nombre] = round(float(gne), 2) 
     return gains 
-
-def median_positive_margin(scored: pd.DataFrame) -> float: 
-    if "margin" in scored.columns: 
-        pos = scored[scored["margin"] > 0]["margin"] 
-    elif "Balance" in scored.columns: 
-        margins = scored.apply(lambda r: customer_margin(r["Balance"], r.get("NumOfProducts", 1), r.get("HasCrCard", 1)), axis=1) 
-        pos = margins[margins > 0] 
-    else: 
-        return 1000.0 
-
-    return float(pos.median()) if len(pos) > 0 else 1000.0 
 
 def value_level_for(margin: float, median: float) -> str: 
     if margin <= 0: 
@@ -63,67 +61,123 @@ def value_level_for(margin: float, median: float) -> str:
         return "Medio" 
     else: 
         return "Superior" 
+    
+def value_level(margins: pd.Series) -> pd.Series: 
+    pos_margins = margins[margins > 0] 
+    mediana = float(pos_margins.median()) if len(pos_margins) > 0 else 1000.0 
+    
+    conditions = [ 
+        margins <= 0, 
+        (margins > 0) & (margins <= mediana), 
+        margins > mediana 
+    ] 
+    choices = ["Bajo/Deficitario", "Medio", "Superior"] 
+    
+    return pd.Series(np.select(conditions, choices, default="Bajo/Deficitario"), index=margins.index)
 
+def median_positive_margin(scored: pd.DataFrame) -> float:
+    pos_margins = scored[scored["margin"] > 0]["margin"] 
+    return float(pos_margins.median()) if len(pos_margins) > 0 else 1000.0
+    
 def segment(p: float, level: str) -> str: 
-    if p < LOW_RISK:
-        return "D"
-    elif p < HIGH_RISK:
-        return "E"
-    else:
-        if level == "Bajo/Deficitario":
-            return "C"
-        elif level == "Medio":
-            return "B"
-        else:
-            return "A"
+    if p < LOW_RISK: 
+        return "D" 
+    elif p < HIGH_RISK: 
+        return "E" 
+    else: 
+        if level == "Bajo/Deficitario": 
+            return "C" 
+        elif level == "Medio": 
+            return "B" 
+        else: return "A" 
 
-@dataclass
-class Decision:
-    label: str
-    incentive: Optional[Dict[str, Any]]
-    gains: Dict[str, float]
-
-def decide(p: float, margin: float, seg_code: str, params: Optional[Dict[str, Any]] = None) -> Decision:
-    gains = expected_net_gains(p, margin, params)
-    par = params if params is not None else DEFAULT_PARAMS
-    incentivos = par.get("incentivos", DEFAULT_PARAMS["incentivos"])
-
-    best_inc = None
-    max_gain = -float("inf")
-
-    for inc in incentivos: 
-        nombre = inc["nombre"] 
-        g = gains.get(nombre, -float("inf")) 
+@dataclass 
+class Decision: 
+    label: str 
+    incentive: Optional[Incentive] 
+    gains: Dict[str, float] 
+    
+def decide(p: float, margin: float, seg_code: str, params: Params) -> Decision: 
+    gains = expected_net_gains(p, margin, params) 
+    
+    best_inc: Optional[Incentive] = None 
+    max_gain = -float("inf") 
+    
+    for inc in params.incentivos: 
+        g = gains.get(inc.nombre, -float("inf")) 
         if g > max_gain: 
             max_gain = g 
             best_inc = inc 
-            
+    
     if max_gain > 0 and best_inc is not None: 
-        label = best_inc["nombre"] 
+        label = best_inc.nombre 
         inc_obj = best_inc 
     else: 
         inc_obj = None 
         label = SIN_ACCION if seg_code == "D" else SALIDA_PERMITIDA 
-
+    
     return Decision(label=label, incentive=inc_obj, gains=gains) 
 
-@dataclass
-class CustomerResult:
-    p_churn: float
-    margin: float
-    segment: str
-    decision: Decision
+@dataclass 
+class CustomerResult: 
+    p_churn: float 
+    margin: float 
+    segment: str 
+    decision: Decision 
 
-def evaluate_customer(
-    p_churn: float,
-    balance: float,
-    num_products: int,
-    has_card: int,
-    median: float = 1000.0,
-    params: Optional[Dict[str, Any]] = None
-) -> CustomerResult:
-    margin = customer_margin(balance, num_products, has_card, params)
-    v_level = value_level_for(margin, median)
-    seg_code = segment(p_churn, v_level)
-    decision = decide(p_churn, margin, seg_code, params)
-    return CustomerResult(p_churn=p_churn, margin=margin, segment=seg_code, decision=decision)
+def evaluate_customer( 
+    p_churn: float, 
+    balance: float, 
+    num_products: int, 
+    has_card: int, 
+    median: float, 
+    params: Params 
+) -> CustomerResult: 
+    margin = float(customer_margin(balance, num_products, has_card, params)) 
+    v_level = value_level_for(margin, median) 
+    seg_code = segment(p_churn, v_level) 
+    decision = decide(p_churn, margin, seg_code, params) 
+    return CustomerResult(p_churn=p_churn, margin=margin, segment=seg_code, decision=decision) 
+
+def score_portfolio(portfolio: pd.DataFrame, params: Params) -> pd.DataFrame: 
+    df = portfolio.copy() 
+    df["margin"] = customer_margin(df["Balance"], df["NumOfProducts"], df["HasCrCard"], params) 
+    df["value_level"] = value_level(df["margin"]) 
+    pos_margins = df[df["margin"] > 0]["margin"] 
+    mediana = float(pos_margins.median()) if len(pos_margins) > 0 else 1000.0 
+    decisions = [] 
+    incentive_costs = [] 
+    incentive_effs = [] 
+    expected_gains = [] 
+    gain_cols = {f"gain__{inc.nombre}": [] for inc in params.incentivos} 
+
+    for _, row in df.iterrows(): 
+        p_ch = float(row["p_churn"]) 
+        m = float(row["margin"]) 
+        v_lev = value_level_for(m, mediana) 
+        seg = segment(p_ch, v_lev) 
+        dec = decide(p_ch, m, seg, params) 
+
+        decisions.append(dec.label) 
+
+        if dec.incentive is not None: 
+            incentive_costs.append(float(dec.incentive.costo)) 
+            incentive_effs.append(float(dec.incentive.efectividad)) 
+            expected_gains.append(float(dec.gains[dec.incentive.nombre])) 
+        else:
+            incentive_costs.append(0.0) 
+            incentive_effs.append(0.0) 
+            expected_gains.append(0.0) 
+        
+        for inc in params.incentivos: 
+            gain_cols[f"gain__{inc.nombre}"].append(dec.gains[inc.nombre]) 
+    
+    df["segment"] = [segment(float(r["p_churn"]), value_level_for(float(r["margin"]), mediana)) for _, r in df.iterrows()] 
+    df["decision"] = decisions 
+    df["incentive_cost"] = incentive_costs 
+    df["incentive_effectiveness"] = incentive_effs 
+    df["expected_gain"] = expected_gains 
+    for col_name, values in gain_cols.items(): 
+        df[col_name] = values 
+
+    return df

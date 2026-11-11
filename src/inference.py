@@ -11,7 +11,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from src.config import MODELS_DIR
+from src.config import MODELS_DIR, portfolio_path
 
 EPS = 1e-7
 
@@ -84,14 +84,7 @@ class ChurnPredictor:
     def predict_transformed(self, X: np.ndarray) -> np.ndarray:
         return apply_calibrator(self.calibrator, self._raw_from_transformed(X))
 
-def load_portfolio(path: Path | None = None) -> pd.DataFrame: 
+def load_portfolio(path: Path | None = None) -> pd.DataFrame:
     if path is None: 
-        env_path = os.getenv("DEEP_RETENTION_PORTFOLIO") 
-        if env_path: 
-            path = Path(env_path) 
-        else: 
-            path = Path(MODELS_DIR) / "portfolio_scored.csv" 
-        if not path.exists(): 
-            path = Path("data/fixtures/portfolio_cases.csv") 
-            
+        path = portfolio_path() 
     return pd.read_csv(path)
