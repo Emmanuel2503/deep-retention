@@ -1,7 +1,7 @@
 ---
 id: US-011
 title: Ajustar costo y efectividad de los incentivos
-status: ready
+status: done
 priority: medium
 epic: EP-004
 ---
