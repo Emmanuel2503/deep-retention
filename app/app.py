@@ -14,6 +14,7 @@ from src.finance import (
     segment_matrix,
 )
 from src.inference import load_portfolio
+from src.validation import NOT_FOUND, parse_customer_id
 
 
 def render_buscador(scored_cartera: pd.DataFrame, params: Params, mediana_cartera: float):
@@ -27,10 +28,14 @@ def render_buscador(scored_cartera: pd.DataFrame, params: Params, mediana_carter
         st.subheader("Consulta por Identificador")
         id_input = st.text_input("Identificador del cliente:", key="customer_id")
         if st.button("Consultar", key="search"):
-            if id_input.strip().isdigit():
-                cust_id = int(id_input.strip())
+            cust_id, err_msg = parse_customer_id(id_input)
+            if err_msg is not None:
+                st.error(err_msg)
+            else:
                 cliente = scored_cartera[scored_cartera["CustomerId"] == cust_id]
-                if not cliente.empty:
+                if cliente.empty:
+                    st.warning(NOT_FOUND)
+                else:
                     row = cliente.iloc[0]
                     p_churn = float(row["p_churn"])
                     balance = float(row["Balance"])
