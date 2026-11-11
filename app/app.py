@@ -77,7 +77,8 @@ def render_cartera(scored_cartera: pd.DataFrame, params: Params):
     counts = pd.DataFrame(
         list(kpis.decision_counts.items()), columns=["Decisión de retención", "Clientes"]
     )
-    st.dataframe(counts, width="stretch", hide_index=True)
+    # Styler: separador de miles fijo ("5,596"), sin depender del idioma del navegador.
+    st.dataframe(counts.style.format({"Clientes": "{:,}"}), width="stretch", hide_index=True)
 
     st.subheader("Matriz por segmento")
     st.dataframe(
