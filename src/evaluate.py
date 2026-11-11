@@ -36,13 +36,21 @@ def reliability_path(reports_dir=REPORTS_DIR) -> Path:
     return Path(reports_dir) / "figures" / RELIABILITY_FIGURE
 
 
+def test_split(portfolio: pd.DataFrame) -> pd.DataFrame:
+    """Filas `split == "test"` de la Cartera puntuada; error si no hay ninguna."""
+    if "split" not in portfolio.columns:
+        raise ValueError("A la Cartera puntuada le falta la columna 'split'.")
+    test = portfolio[portfolio["split"] == "test"]
+    if test.empty:
+        raise ValueError('La Cartera puntuada no tiene Clientes de prueba (split == "test").')
+    return test
+
+
 def _test_clients(portfolio: pd.DataFrame) -> pd.DataFrame:
     missing = [column for column in REQUIRED_COLUMNS if column not in portfolio.columns]
     if missing:
         raise ValueError(f"A la Cartera puntuada le faltan las columnas {missing}.")
-    test = portfolio[portfolio["split"] == "test"]
-    if test.empty:
-        raise ValueError('La Cartera puntuada no tiene Clientes de prueba (split == "test").')
+    test = test_split(portfolio)
     if test[TARGET].nunique() < 2:
         raise ValueError(
             "Los Clientes de prueba tienen una sola clase; no se pueden calcular ROC-AUC ni PR-AUC."

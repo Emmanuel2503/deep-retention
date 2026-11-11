@@ -1,7 +1,7 @@
 ---
 id: VS-010
 title: Ver los indicadores de la cartera
-status: ready
+status: done
 story: US-008
 covers: [AC-01, AC-02, AC-03]
 adrs: [ADR-0002, ADR-0007]
@@ -47,10 +47,10 @@ st.caption: "El 85% de estos clientes se usó para entrenar o calibrar la red."
 ```
 
 ## Tasks
-- [ ] **T-01:** Implementar `portfolio_kpis` → AC-01, AC-02
-- [ ] **T-02:** Mostrar métricas, conteo y nota en la pestaña "Cartera" → AC-01, AC-03
-- [ ] **T-03:** Mostrar "N/A" cuando la inversión es 0 → AC-02
-- [ ] **T-04:** Crear las Carteras de ejemplo → none
+- [x] **T-01:** Implementar `portfolio_kpis` → AC-01, AC-02
+- [x] **T-02:** Mostrar métricas, conteo y nota en la pestaña "Cartera" → AC-01, AC-03
+- [x] **T-03:** Mostrar "N/A" cuando la inversión es 0 → AC-02
+- [x] **T-04:** Crear las Carteras de ejemplo → none
 
 ## Tests
 Cada fila con `DEEP_RETENTION_PORTFOLIO=data/fixtures/<archivo>` salvo donde se indica la Cartera real (ADR-0006).
@@ -69,9 +69,9 @@ Cada fila con `DEEP_RETENTION_PORTFOLIO=data/fixtures/<archivo>` salvo donde se 
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Emmanuel (turno 3)
