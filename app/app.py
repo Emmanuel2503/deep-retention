@@ -10,6 +10,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))) 
 
 from src.finance import evaluate_customer, median_positive_margin 
+from src.validation import parse_customer_id, NOT_FOUND
 
 def cargar_cartera_ejemplo() -> pd.DataFrame: 
     rutas = [ 
@@ -42,31 +43,40 @@ def render_buscador():
     id_input = st.text_input("Identificador del cliente:", key="customer_id") 
     
     if st.button("Consultar", key="search"): 
-        cust_id = int(id_input.strip()) 
+
+        cust_id, err = parse_customer_id(id_input) 
+        
+        if err: 
+            st.error(err) 
+            return 
+        
         cliente = df_cartera[df_cartera["CustomerId"] == cust_id] 
         
-        if not cliente.empty: 
-            row = cliente.iloc[0] 
-            p_churn = float(row.get("p_churn", 0.50)) 
-            balance = float(row.get("Balance", 0.0)) 
-            num_prod = int(row.get("NumOfProducts", 1)) 
-            has_card = int(row.get("HasCrCard", 1)) 
+        if cliente.empty: 
+            st.warning(NOT_FOUND) 
+            return 
+        
+        row = cliente.iloc[0] 
+        p_churn = float(row.get("p_churn", 0.50)) 
+        balance = float(row.get("Balance", 0.0)) 
+        num_prod = int(row.get("NumOfProducts", 1)) 
+        has_card = int(row.get("HasCrCard", 1)) 
 
-            res = evaluate_customer(p_churn, balance, num_prod, has_card, mediana_cartera) 
+        res = evaluate_customer(p_churn, balance, num_prod, has_card, mediana_cartera)
 
-            col1, col2, col3, col4 = st.columns(4) 
-            col1.metric("Probabilidad de fuga", f"{res.p_churn:.2f}") 
-            col2.metric("Margen del cliente", f"${res.margin:,.2f}" if res.margin >= 0 else f"-${abs(res.margin):,.2f}") 
-            col3.metric("Segmento", res.segment) 
-            col4.metric("Decisión de retención", res.decision.label) 
+        col1, col2, col3, col4 = st.columns(4) 
+        col1.metric("Probabilidad de fuga", f"{res.p_churn:.2f}") 
+        col2.metric("Margen del cliente", f"${res.margin:,.2f}" if res.margin >= 0 else f"-${abs(res.margin):,.2f}") 
+        col3.metric("Segmento", res.segment) 
+        col4.metric("Decisión de retención", res.decision.label)
 
-            st.markdown("---") 
-            st.write("Ganancias Netas Esperadas por Incentivo") 
-            df_gains = pd.DataFrame([ 
-                {"Incentivo": nombre, "Ganancia neta esperada": f"${g:,.2f}" if g >= 0 else f"-${abs(g):,.2f}"} 
-                for nombre, g in res.decision.gains.items() 
-            ]) 
-            st.dataframe(df_gains, use_container_width=True) 
+        st.markdown("---") 
+        st.write("Ganancias Netas Esperadas por Incentivo") 
+        df_gains = pd.DataFrame([ 
+            {"Incentivo": nombre, "Ganancia neta esperada": f"${g:,.2f}" if g >= 0 else f"-${abs(g):,.2f}"} 
+            for nombre, g in res.decision.gains.items() 
+        ]) 
+        st.dataframe(df_gains, use_container_width=True) 
 
 def render_cartera(): 
     st.header("Panel de Cartera")

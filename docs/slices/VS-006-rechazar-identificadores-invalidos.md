@@ -1,7 +1,7 @@
 ---
 id: VS-006
 title: Rechazar identificadores inválidos
-status: ready
+status: done
 story: US-005
 covers: [AC-03]
 adrs: []
