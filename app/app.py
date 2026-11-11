@@ -146,8 +146,19 @@ def on_margin_change():
         )
 
 
+def reset_params():
+    """Callback de "Restablecer valores base" (VS-015, ADR-0007): parámetros, entradas
+    del Simulador y errores vuelven a los valores base en la misma ejecución."""
+    st.session_state["params"] = DEFAULT_PARAMS
+    for k, v in widget_defaults(DEFAULT_PARAMS).items():
+        st.session_state[k] = v
+    st.session_state["sim_errors"] = {}
+
+
 def render_simulador(params: Params):
     st.header("Simulador de Parámetros")
+    st.caption("Los cambios solo duran esta sesión: al abrir la aplicación de nuevo se usan los valores base.")
+    st.button("Restablecer valores base", key="reset_params", on_click=reset_params)
 
     st.subheader("Incentivos")
     for i, inc in enumerate(params.incentives):
