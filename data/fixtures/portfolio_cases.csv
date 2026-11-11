@@ -1,6 +1,6 @@
-CustomerId,Balance,NumOfProducts,HasCrCard,p_churn,split,Exited 
-1001,100000,2,1,0.80,test,1 
-1002,0,1,0,0.50,test,0 
-1003,100000,2,1,0.10,train,0 
-1004,0,1,0,0.70,val,1 
-1005,0,1,0,0.40,train,0
+CustomerId,CreditScore,Geography,Gender,Age,Tenure,Balance,NumOfProducts,HasCrCard,IsActiveMember,EstimatedSalary,Satisfaction Score,Card Type,Point Earned,Exited,split,p_raw,p_churn
+1001,650,France,Female,45,5,100000.0,2,1,0,80000.0,2,GOLD,500,1,test,0.80,0.80
+1002,600,Spain,Male,35,3,0.0,1,0,1,50000.0,4,SILVER,300,0,test,0.50,0.50
+1003,700,Germany,Female,50,7,100000.0,2,1,1,90000.0,3,PLATINUM,600,0,train,0.10,0.10
+1004,580,France,Male,40,2,0.0,1,0,0,40000.0,1,SILVER,250,1,val,0.70,0.70
+1005,620,Spain,Female,30,4,0.0,1,0,1,60000.0,5,DIAMOND,400,0,train,0.40,0.40
