@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.finance import (
-    DEFAULT_PARAMS, Params, evaluate_customer, score_portfolio
+    DEFAULT_PARAMS, Params, evaluate_customer, portfolio_kpis, score_portfolio
 )
 from src.inference import load_portfolio
 
@@ -52,8 +52,35 @@ def render_buscador(scored_cartera: pd.DataFrame, params: Params, mediana_carter
                     )
 
 
+def money(x: float) -> str:
+    """Monto en dólares con dos decimales (SRS/BR-09): "$1,234.56" o "-$10.00"."""
+    return f"${x:,.2f}" if x >= 0 else f"-${abs(x):,.2f}"
+
+
 def render_cartera(scored_cartera: pd.DataFrame, params: Params):
     st.header("Panel de Cartera")
+    kpis = portfolio_kpis(scored_cartera)
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Clientes analizados", f"{kpis.n_customers:,}")
+    c2.metric("Capital en riesgo", money(kpis.capital_at_risk))
+    c3.metric("Capital en riesgo crítico", money(kpis.capital_at_risk_critical))
+    c4.metric("Capital rescatable", money(kpis.rescuable_capital))
+
+    c5, c6, c7, c8 = st.columns(4)
+    c5.metric("Inversión en retención", money(kpis.investment))
+    c6.metric("Margen salvado", money(kpis.saved_margin))
+    c7.metric("ROI", "N/A" if kpis.roi is None else f"{kpis.roi:.1%}")
+    pct = "N/A" if kpis.avoided_churn_pct is None else f"{kpis.avoided_churn_pct:.1%}"
+    c8.metric("Fugas evitadas esperadas", f"{kpis.expected_avoided_churn:,.2f} ({pct})")
+
+    counts = pd.DataFrame(
+        list(kpis.decision_counts.items()), columns=["Decisión de retención", "Clientes"]
+    )
+    st.dataframe(counts, width="stretch", hide_index=True)
+
+    # Nota metodológica de EP-003/BR-01.
+    st.caption("El 85% de estos clientes se usó para entrenar o calibrar la red.")
 
 
 def render_simulador(params: Params):
