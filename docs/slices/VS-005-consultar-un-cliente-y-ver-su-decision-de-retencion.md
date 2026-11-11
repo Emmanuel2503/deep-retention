@@ -1,7 +1,7 @@
 ---
 id: VS-005
 title: Consultar un cliente y ver su decisión de retención
-status: ready
+status: done
 story: US-005
 covers: [AC-01, AC-02, AC-04]
 adrs: [ADR-0002, ADR-0007]
@@ -70,12 +70,12 @@ CustomerId  Balance  NumOfProducts  HasCrCard  p_churn  split  Exited
 ```
 
 ## Tasks
-- [ ] **T-01:** Implementar `config.portfolio_path` e `inference.load_portfolio` → AC-01
-- [ ] **T-02:** Implementar `customer_margin` y `expected_net_gains` → AC-01, AC-02
-- [ ] **T-03:** Implementar `value_level`, `segment` y `decide` → AC-01, AC-02, AC-04
-- [ ] **T-04:** Implementar `score_portfolio` → AC-01
-- [ ] **T-05:** Crear `app/app.py` con las tres pestañas, el estado de sesión y la búsqueda por identificador → AC-01
-- [ ] **T-06:** Crear `data/fixtures/portfolio_cases.csv` → none
+- [x] **T-01:** Implementar `config.portfolio_path` e `inference.load_portfolio` → AC-01
+- [x] **T-02:** Implementar `customer_margin` y `expected_net_gains` → AC-01, AC-02
+- [x] **T-03:** Implementar `value_level`, `segment` y `decide` → AC-01, AC-02, AC-04
+- [x] **T-04:** Implementar `score_portfolio` → AC-01
+- [x] **T-05:** Crear `app/app.py` con las tres pestañas, el estado de sesión y la búsqueda por identificador → AC-01
+- [x] **T-06:** Crear `data/fixtures/portfolio_cases.csv` → none
 
 ## Tests
 Todas las filas con `DEEP_RETENTION_PORTFOLIO=data/fixtures/portfolio_cases.csv venv/bin/streamlit run app/app.py` (ADR-0006).
@@ -94,9 +94,9 @@ Todas las filas con `DEEP_RETENTION_PORTFOLIO=data/fixtures/portfolio_cases.csv 
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Ainhoa (turno 2)
