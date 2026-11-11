@@ -1,7 +1,7 @@
 ---
 id: VS-013
 title: Ajustar costo y efectividad de los incentivos
-status: ready
+status: done
 story: US-011
 covers: [AC-01, AC-02]
 adrs: [ADR-0007]
@@ -44,9 +44,9 @@ st.error(mensaje) por cada entrada de sim_errors; params sin cambios
 ```
 
 ## Tasks
-- [ ] **T-01:** Implementar `validate_incentive`, `with_incentive` y `widget_defaults` → AC-01, AC-02
-- [ ] **T-02:** Crear las entradas en "Simulador", inicializar sus claves y actualizar `params` en el callback → AC-01
-- [ ] **T-03:** Guardar y mostrar el error y conservar los parámetros si el valor es inválido → AC-02
+- [x] **T-01:** Implementar `validate_incentive`, `with_incentive` y `widget_defaults` → AC-01, AC-02
+- [x] **T-02:** Crear las entradas en "Simulador", inicializar sus claves y actualizar `params` en el callback → AC-01
+- [x] **T-03:** Guardar y mostrar el error y conservar los parámetros si el valor es inválido → AC-02
 
 ## Tests
 Con `DEEP_RETENTION_PORTFOLIO=data/fixtures/portfolio_cases.csv` (ADR-0006).
@@ -64,9 +64,9 @@ Con `DEEP_RETENTION_PORTFOLIO=data/fixtures/portfolio_cases.csv` (ADR-0006).
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Emmanuel (turno 3)

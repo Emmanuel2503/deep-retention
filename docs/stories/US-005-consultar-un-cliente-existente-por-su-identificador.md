@@ -1,7 +1,7 @@
 ---
 id: US-005
 title: Consultar un cliente existente por su identificador
-status: ready
+status: done
 priority: high
 epic: EP-002
 ---
