@@ -10,7 +10,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from src.config import MODELS_DIR
+from src.config import MODELS_DIR, portfolio_path
 
 EPS = 1e-7
 PREDICT_BATCH = 65536
@@ -88,3 +88,8 @@ class ChurnPredictor:
 
     def predict_transformed(self, X: np.ndarray) -> np.ndarray:
         return apply_calibrator(self.calibrator, self._raw_from_transformed(X))
+
+def load_portfolio(path: Path | None = None) -> pd.DataFrame:
+    if path is None: 
+        path = portfolio_path() 
+    return pd.read_csv(path)
