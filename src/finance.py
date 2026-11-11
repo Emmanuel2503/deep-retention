@@ -239,7 +239,7 @@ SEGMENT_INFO = {
 }
 
 
-def segment_matrix(scored: pd.DataFrame, params) -> pd.DataFrame:
+def segment_matrix(scored: pd.DataFrame, params: Params) -> pd.DataFrame:
     """Una fila por Segmento A..E, incluidas las vacías con ceros.
 
     `params.incentives` solo se usa para nombrar las columnas de Decisión.

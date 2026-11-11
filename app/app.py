@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.finance import (
-    DEFAULT_PARAMS, Params, evaluate_customer, portfolio_kpis, score_portfolio
+    DEFAULT_PARAMS, Params, evaluate_customer, portfolio_kpis, score_portfolio, segment_matrix
 )
 from src.inference import load_portfolio
 
@@ -78,6 +78,16 @@ def render_cartera(scored_cartera: pd.DataFrame, params: Params):
         list(kpis.decision_counts.items()), columns=["Decisión de retención", "Clientes"]
     )
     st.dataframe(counts, width="stretch", hide_index=True)
+
+    st.subheader("Matriz por segmento")
+    st.dataframe(
+        segment_matrix(scored_cartera, params),
+        width="stretch",
+        column_config={
+            "Inversión en retención": st.column_config.NumberColumn(format="dollar"),
+            "Ganancia neta esperada": st.column_config.NumberColumn(format="dollar"),
+        },
+    )
 
     # Nota metodológica de EP-003/BR-01.
     st.caption("El 85% de estos clientes se usó para entrenar o calibrar la red.")

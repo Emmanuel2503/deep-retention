@@ -1,7 +1,7 @@
 ---
 id: VS-011
 title: Ver la matriz por segmento
-status: ready
+status: done
 story: US-009
 covers: [AC-01, AC-02, AC-03]
 adrs: [ADR-0007]
@@ -39,8 +39,8 @@ segment_matrix(scored: DataFrame, params) -> DataFrame
 ```
 
 ## Tasks
-- [ ] **T-01:** Implementar `segment_matrix` con las cinco filas siempre presentes → AC-01, AC-02, AC-03
-- [ ] **T-02:** Mostrar la matriz en la pestaña "Cartera" → AC-01
+- [x] **T-01:** Implementar `segment_matrix` con las cinco filas siempre presentes → AC-01, AC-02, AC-03
+- [x] **T-02:** Mostrar la matriz en la pestaña "Cartera" → AC-01
 
 ## Tests
 | AC | What the test verifies | Type | Location |
@@ -56,9 +56,9 @@ segment_matrix(scored: DataFrame, params) -> DataFrame
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Emmanuel (turno 3)
