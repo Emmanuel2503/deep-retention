@@ -10,7 +10,8 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.finance import (
-    DEFAULT_PARAMS, Params, evaluate_customer, portfolio_kpis, score_portfolio, segment_matrix
+    DEFAULT_PARAMS, Params, evaluate_customer, portfolio_kpis, realized_roi, score_portfolio,
+    segment_matrix,
 )
 from src.inference import load_portfolio
 
@@ -59,7 +60,11 @@ def money(x: float) -> str:
 
 def render_cartera(scored_cartera: pd.DataFrame, params: Params):
     st.header("Panel de Cartera")
-    kpis = portfolio_kpis(scored_cartera)
+    only_test = st.toggle("Solo clientes de prueba", key="only_test", value=False)
+    # La Cartera ya viene puntuada completa (VS-012/Q-01): filtrar después conserva
+    # el Segmento de cada cliente, calculado con la mediana de los 10,000.
+    shown = scored_cartera[scored_cartera["split"] == "test"] if only_test else scored_cartera
+    kpis = portfolio_kpis(shown)
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Clientes analizados", f"{kpis.n_customers:,}")
@@ -74,6 +79,11 @@ def render_cartera(scored_cartera: pd.DataFrame, params: Params):
     pct = "N/A" if kpis.avoided_churn_pct is None else f"{kpis.avoided_churn_pct:.1%}"
     c8.metric("Fugas evitadas esperadas", f"{kpis.expected_avoided_churn:,.2f} ({pct})")
 
+    if only_test:
+        # SRS/OBJ-03: usa el abandono real (Exited), así que puede ser negativo.
+        roi_real = realized_roi(shown)
+        st.metric("ROI realizado", "N/A" if roi_real is None else f"{roi_real:.1%}")
+
     counts = pd.DataFrame(
         list(kpis.decision_counts.items()), columns=["Decisión de retención", "Clientes"]
     )
@@ -81,7 +91,7 @@ def render_cartera(scored_cartera: pd.DataFrame, params: Params):
     st.dataframe(counts.style.format({"Clientes": "{:,}"}), width="stretch", hide_index=True)
 
     st.subheader("Matriz por segmento")
-    matrix = segment_matrix(scored_cartera, params)
+    matrix = segment_matrix(shown, params)
     money_cols = ["Inversión en retención", "Ganancia neta esperada"]
     count_cols = [c for c in matrix.columns[3:] if c not in money_cols]
     st.dataframe(
@@ -89,8 +99,9 @@ def render_cartera(scored_cartera: pd.DataFrame, params: Params):
         width="stretch",
     )
 
-    # Nota metodológica de EP-003/BR-01.
-    st.caption("El 85% de estos clientes se usó para entrenar o calibrar la red.")
+    # Nota metodológica de EP-003/BR-01, solo con la Cartera completa.
+    if not only_test:
+        st.caption("El 85% de estos clientes se usó para entrenar o calibrar la red.")
 
 
 def render_simulador(params: Params):

@@ -1,7 +1,7 @@
 ---
 id: US-010
 title: Limitar la cartera a clientes de prueba
-status: ready
+status: done
 priority: low
 epic: EP-003
 ---
