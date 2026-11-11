@@ -14,7 +14,7 @@ depends_on: [VS-004, VS-005, VS-007]
 Al consultar un cliente, existente o nuevo, el Ejecutivo de cuentas ve un gráfico de cascada con las variables que suben o bajan su Probabilidad de fuga, cada una con el valor del cliente, desde la Probabilidad de fuga media de referencia hasta la del cliente.
 
 ## Approach
-`src/explain.py` agrega `customer_contributions`, que usa el explicador de VS-004 (sobre la Probabilidad de fuga calibrada) con una fila y agrega las columnas one-hot por variable original. La app crea el explicador una vez con `st.cache_resource`, con el fondo `background_sample(portfolio)` de VS-004 sobre la Cartera puntuada que devuelve `load_portfolio()`. Debajo de los resultados se muestran un gráfico de cascada (matplotlib con `st.pyplot`) desde el valor base hasta la Probabilidad de fuga del cliente, y una tabla con las mismas contribuciones. Las etiquetas usan nombres en español con el valor original ("Edad = 52").
+`src/explain.py` agrega `customer_contributions`, que usa el explicador de VS-004 (sobre la Probabilidad de fuga calibrada) con una fila (`explainer.contributions(row)`, ya por variable original) y toma el valor base de `explainer.base_value`. La app crea el explicador una vez con `st.cache_resource`, con el fondo `background_sample(portfolio)` de VS-004 sobre la Cartera puntuada que devuelve `load_portfolio()`. Debajo de los resultados se muestran un gráfico de cascada (matplotlib con `st.pyplot`) desde el valor base hasta la Probabilidad de fuga del cliente, y una tabla con las mismas contribuciones. Las etiquetas usan nombres en español con el valor original ("Edad = 52").
 
 ## Changes
 | Layer | Change | Location |

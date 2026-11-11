@@ -1,7 +1,7 @@
 ---
 id: US-008
 title: Ver los indicadores de la cartera
-status: ready
+status: done
 priority: high
 epic: EP-003
 ---
