@@ -11,16 +11,42 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.finance import (
-    DEFAULT_PARAMS, Params, evaluate_customer, portfolio_kpis, realized_roi, score_portfolio,
-    segment_matrix, widget_defaults, with_incentive,
+    DEFAULT_PARAMS, Params, evaluate_customer, median_positive_margin, portfolio_kpis,
+    realized_roi, score_portfolio, segment_matrix, widget_defaults, with_incentive,
 )
-from src.inference import load_portfolio
+from src.inference import ChurnPredictor, load_portfolio
 from src.validation import NOT_FOUND, parse_customer_id, validate_incentive, validate_margin_params
 
 MARGIN_FIELDS = ["spread", "fee_per_product", "fee_card", "service_cost"]
 
 
-def render_buscador(scored_cartera: pd.DataFrame, params: Params, mediana_cartera: float):
+@st.cache_resource
+def obtener_predictor():
+    try:
+        return ChurnPredictor.load()
+    except Exception:
+        return None
+
+
+def render_customer_result(res):
+    """Resultados de un cliente: los mismos st.metric y st.dataframe en VS-005 y VS-007."""
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Probabilidad de fuga", f"{res.p_churn:.2f}")
+    col2.metric("Margen del cliente", f"${res.margin:,.2f}" if res.margin >= 0 else f"-${abs(res.margin):,.2f}")
+    col3.metric("Segmento", res.segment)
+    col4.metric("Decisión de retención", res.decision.label)
+    st.markdown("---")
+    st.write("Ganancias Netas Esperadas por Incentivo")
+    # Valores numéricos (contrato de VS-005); el formato de dólares lo pone column_config.
+    df_gains = pd.DataFrame([{"Incentivo": nombre, "Ganancia neta esperada": g} for nombre, g in res.decision.gains.items()])
+    st.dataframe(
+        df_gains,
+        width="stretch",
+        column_config={"Ganancia neta esperada": st.column_config.NumberColumn(format="dollar")},
+    )
+
+
+def render_buscador(scored_cartera: pd.DataFrame, params: Params, mediana_cartera: float, predictor):
     st.header("Buscador por Cliente")
     search_mode = st.radio(
         "Modalidad de consulta:",
@@ -45,20 +71,76 @@ def render_buscador(scored_cartera: pd.DataFrame, params: Params, mediana_carter
                     num_prod = int(row["NumOfProducts"])
                     has_card = int(row["HasCrCard"])
                     res = evaluate_customer(p_churn, balance, num_prod, has_card, mediana_cartera, params)
-                    col1, col2, col3, col4 = st.columns(4)
-                    col1.metric("Probabilidad de fuga", f"{res.p_churn:.2f}")
-                    col2.metric("Margen del cliente", f"${res.margin:,.2f}" if res.margin >= 0 else f"-${abs(res.margin):,.2f}")
-                    col3.metric("Segmento", res.segment)
-                    col4.metric("Decisión de retención", res.decision.label)
-                    st.markdown("---")
-                    st.write("Ganancias Netas Esperadas por Incentivo")
-                    # Valores numéricos (contrato de VS-005); el formato de dólares lo pone column_config.
-                    df_gains = pd.DataFrame([{"Incentivo": nombre, "Ganancia neta esperada": g} for nombre, g in res.decision.gains.items()])
-                    st.dataframe(
-                        df_gains,
-                        width="stretch",
-                        column_config={"Ganancia neta esperada": st.column_config.NumberColumn(format="dollar")},
-                    )
+                    render_customer_result(res)
+    else:
+        st.subheader("Formulario de Cliente Nuevo")
+
+        cat_geography = predictor.categories.get("Geography", ["France", "Germany", "Spain"]) if predictor else ["France", "Germany", "Spain"]
+        cat_gender = predictor.categories.get("Gender", ["Female", "Male"]) if predictor else ["Female", "Male"]
+        cat_card_type = predictor.categories.get("Card Type", ["DIAMOND", "GOLD", "PLATINUM", "SILVER"]) if predictor else ["DIAMOND", "GOLD", "PLATINUM", "SILVER"]
+
+        with st.form(key="new_customer"):
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                credit_score = st.number_input("Credit Score", value=650, key="f_CreditScore")
+                geography = st.selectbox("Geography", cat_geography, key="f_Geography")
+                gender = st.selectbox("Gender", cat_gender, key="f_Gender")
+                age = st.number_input("Age", value=35, key="f_Age")
+            with c2:
+                tenure = st.number_input("Tenure", value=3, key="f_Tenure")
+                balance = st.number_input("Balance", value=250000.0, key="f_Balance")
+                num_products = st.number_input("Number Of Products", value=2, key="f_NumOfProducts")
+                estimated_salary = st.number_input("Estimated Salary", value=50000.0, key="f_EstimatedSalary")
+            with c3:
+                satisfaction_score = st.number_input("Satisfaction Score", value=3, key="f_Satisfaction Score")
+                card_type = st.selectbox("Card Type", cat_card_type, key="f_Card Type")
+                point_earned = st.number_input("Point Earned", value=500, key="f_Point Earned")
+                has_cr_card = st.checkbox("Tiene Tarjeta de Crédito", value=True, key="f_HasCrCard")
+                is_active_member = st.checkbox("Es Miembro Activo", value=True, key="f_IsActiveMember")
+            submitted = st.form_submit_button("Evaluar")
+
+        if submitted:
+            has_card_val = 1 if has_cr_card else 0
+            active_val = 1 if is_active_member else 0
+
+            datos_cliente = {
+                "CreditScore": credit_score,
+                "Geography": geography,
+                "Gender": gender,
+                "Age": age,
+                "Tenure": tenure,
+                "Balance": balance,
+                "NumOfProducts": num_products,
+                "HasCrCard": has_card_val,
+                "IsActiveMember": active_val,
+                "EstimatedSalary": estimated_salary,
+                "Satisfaction Score": satisfaction_score,
+                "Card Type": card_type,
+                "Point Earned": point_earned,
+            }
+
+            df_nuevo = pd.DataFrame([datos_cliente])
+
+            if predictor is not None:
+                try:
+                    p_churn = float(predictor.predict(df_nuevo)[0])
+                except Exception:
+                    p_churn = 0.70
+            else:
+                p_churn = 0.70
+
+            res = evaluate_customer(
+                p_churn=p_churn,
+                balance=float(balance),
+                num_products=int(num_products),
+                has_card=has_card_val,
+                median=mediana_cartera,
+                params=params,
+            )
+
+            st.markdown("---")
+            st.subheader("Resultados de Evaluación")
+            render_customer_result(res)
 
 
 def money(x: float) -> str:
@@ -200,13 +282,13 @@ def main():
         st.error(f"❌ Error al cargar o puntuar la cartera: {e}")
         st.stop()
 
-    pos_margins = scored_cartera[scored_cartera["margin"] > 0]["margin"]
-    mediana_cartera = float(pos_margins.median()) if len(pos_margins) > 0 else 1000.0
+    mediana_cartera = median_positive_margin(scored_cartera)
+    predictor = obtener_predictor()
 
     tab1, tab2, tab3 = st.tabs(["Buscador", "Cartera", "Simulador"])
 
     with tab1:
-        render_buscador(scored_cartera, params, mediana_cartera)
+        render_buscador(scored_cartera, params, mediana_cartera, predictor)
 
     with tab2:
         render_cartera(scored_cartera, params)

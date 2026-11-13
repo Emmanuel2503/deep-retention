@@ -75,6 +75,10 @@ def value_level(margins: pd.Series) -> pd.Series:
 
     return pd.Series(np.select(conditions, choices, default="Bajo/Deficitario"), index=margins.index)
 
+def median_positive_margin(scored: pd.DataFrame) -> float:
+    pos_margins = scored[scored["margin"] > 0]["margin"]
+    return float(pos_margins.median()) if len(pos_margins) > 0 else 1000.0
+
 def segment(p: float, level: str) -> str:
     if p < LOW_RISK:
         return "D"

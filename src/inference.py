@@ -5,6 +5,7 @@ para leer la Cartera puntuada (ADR-0002) y no debe cargar TensorFlow por ello.
 """
 import json
 from pathlib import Path
+import os
 
 import joblib
 import numpy as np

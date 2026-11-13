@@ -1,7 +1,7 @@
 ---
 id: VS-007
 title: Evaluar un cliente nuevo por formulario
-status: ready
+status: done
 story: US-006
 covers: [AC-01, AC-03]
 adrs: [ADR-0002, ADR-0007]
