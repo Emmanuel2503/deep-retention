@@ -1,7 +1,7 @@
 ---
 id: VS-008
 title: Validar los límites de negocio del formulario
-status: ready
+status: done
 story: US-006
 covers: [AC-02, AC-04]
 adrs: []
