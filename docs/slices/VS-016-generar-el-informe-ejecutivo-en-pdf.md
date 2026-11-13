@@ -1,7 +1,7 @@
 ---
 id: VS-016
 title: Generar el informe ejecutivo en PDF
-status: ready
+status: done
 story: US-013
 covers: [AC-01, AC-02, AC-03, AC-04]
 adrs: [ADR-0002]
@@ -55,11 +55,11 @@ pandoc reports/informe.md -o reports/informe_ejecutivo.pdf --pdf-engine=xelatex 
 ```
 
 ## Tasks
-- [ ] **T-01:** Implementar `report_numbers`, `report_numbers_markdown` y `__main__` → AC-01, AC-02
-- [ ] **T-02:** Redactar `reports/informe.md` con las cinco secciones, cifras, figuras y la matriz → AC-01, AC-02
-- [ ] **T-03:** Redactar las secciones 4 y 5 con el procedimiento de 5 pasos, el mantenimiento trimestral y el piloto (US-013/BR-03..BR-05) → AC-03
-- [ ] **T-04:** Redactar en la sección 3 las explicaciones de US-013/BR-06 y en la sección 1 la nota de US-013/BR-07 → AC-04
-- [ ] **T-05:** Generar el PDF con pandoc y documentar el comando en el README → AC-01
+- [x] **T-01:** Implementar `report_numbers`, `report_numbers_markdown` y `__main__` → AC-01, AC-02
+- [x] **T-02:** Redactar `reports/informe.md` con las cinco secciones, cifras, figuras y la matriz → AC-01, AC-02
+- [x] **T-03:** Redactar las secciones 4 y 5 con el procedimiento de 5 pasos, el mantenimiento trimestral y el piloto (US-013/BR-03..BR-05) → AC-03
+- [x] **T-04:** Redactar en la sección 3 las explicaciones de US-013/BR-06 y en la sección 1 la nota de US-013/BR-07 → AC-04
+- [x] **T-05:** Generar el PDF con pandoc y documentar el comando en el README → AC-01
 
 ## Tests
 | AC | What the test verifies | Type | Location |
@@ -76,8 +76,8 @@ pandoc reports/informe.md -o reports/informe_ejecutivo.pdf --pdf-engine=xelatex 
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
 - [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
