@@ -1,0 +1,54 @@
+[
+  {
+    "feature": "Age",
+    "mean_abs_contribution": 0.09900373551698588
+  },
+  {
+    "feature": "NumOfProducts",
+    "mean_abs_contribution": 0.08825609778059586
+  },
+  {
+    "feature": "IsActiveMember",
+    "mean_abs_contribution": 0.05552394855843774
+  },
+  {
+    "feature": "Geography",
+    "mean_abs_contribution": 0.04098560895257424
+  },
+  {
+    "feature": "Gender",
+    "mean_abs_contribution": 0.023109365051465953
+  },
+  {
+    "feature": "Balance",
+    "mean_abs_contribution": 0.017990010400825686
+  },
+  {
+    "feature": "Card Type",
+    "mean_abs_contribution": 0.009255893057696231
+  },
+  {
+    "feature": "Satisfaction Score",
+    "mean_abs_contribution": 0.008604240694154905
+  },
+  {
+    "feature": "EstimatedSalary",
+    "mean_abs_contribution": 0.008440327156608281
+  },
+  {
+    "feature": "CreditScore",
+    "mean_abs_contribution": 0.007492459575215431
+  },
+  {
+    "feature": "Point Earned",
+    "mean_abs_contribution": 0.0067271172293218735
+  },
+  {
+    "feature": "HasCrCard",
+    "mean_abs_contribution": 0.006407930692745895
+  },
+  {
+    "feature": "Tenure",
+    "mean_abs_contribution": 0.006220660927884195
+  }
+]

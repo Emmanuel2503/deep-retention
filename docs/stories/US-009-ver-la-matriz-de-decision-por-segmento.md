@@ -1,7 +1,7 @@
 ---
 id: US-009
 title: Ver la matriz de decisión por segmento
-status: ready
+status: done
 priority: medium
 epic: EP-003
 ---

@@ -1,7 +1,7 @@
 ---
 id: VS-015
 title: Restablecer valores base y parámetros por sesión
-status: ready
+status: done
 story: US-011
 covers: [AC-03, AC-04]
 adrs: [ADR-0007]
@@ -29,8 +29,8 @@ reset_params(): params = DEFAULT_PARAMS; claves de widget_defaults(DEFAULT_PARAM
 ```
 
 ## Tasks
-- [ ] **T-01:** Implementar el botón y el callback de restablecimiento → AC-03
-- [ ] **T-02:** Comprobar que ningún parámetro se guarda fuera de `st.session_state` → AC-04
+- [x] **T-01:** Implementar el botón y el callback de restablecimiento → AC-03
+- [x] **T-02:** Comprobar que ningún parámetro se guarda fuera de `st.session_state` → AC-04
 
 ## Tests
 Con `DEEP_RETENTION_PORTFOLIO=data/fixtures/portfolio_cases.csv` (ADR-0006).
@@ -47,9 +47,9 @@ Con `DEEP_RETENTION_PORTFOLIO=data/fixtures/portfolio_cases.csv` (ADR-0006).
 None.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Emmanuel (turno 3)

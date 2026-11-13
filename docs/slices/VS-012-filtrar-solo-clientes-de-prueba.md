@@ -1,7 +1,7 @@
 ---
 id: VS-012
 title: Filtrar solo clientes de prueba
-status: ready
+status: done
 story: US-010
 covers: [AC-01, AC-02, AC-03]
 adrs: [ADR-0002, ADR-0007]
@@ -36,8 +36,8 @@ st.metric "ROI realizado" ("314.0%" | "N/A"), solo con only_test activo
 ```
 
 ## Tasks
-- [ ] **T-01:** Agregar el toggle y filtrar antes de calcular indicadores y matriz → AC-01, AC-02
-- [ ] **T-02:** Implementar `realized_roi` y mostrarlo con el toggle activo → AC-03
+- [x] **T-01:** Agregar el toggle y filtrar antes de calcular indicadores y matriz → AC-01, AC-02
+- [x] **T-02:** Implementar `realized_roi` y mostrarlo con el toggle activo → AC-03
 
 ## Tests
 | AC | What the test verifies | Type | Location |
@@ -53,9 +53,9 @@ st.metric "ROI realizado" ("314.0%" | "N/A"), solo con only_test activo
 - [x] **Q-01:** Con el filtro activo, ¿la mediana que separa los niveles de valor Medio y Superior (SRS/BR-05) se calcula solo con los Clientes de prueba o se mantiene la de la Cartera completa? Cambia los Segmentos A y B, aunque no las Decisiones de retención. → **A:** Se mantiene la de la Cartera completa: primero se puntúa y después se filtra, así cada cliente conserva su Segmento.
 
 ## Done when
-- [ ] All tasks checked
-- [ ] Every AC in `covers` passes its test
-- [ ] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
+- [x] All tasks checked
+- [x] Every AC in `covers` passes its test
+- [x] Enforcement checks of all applicable ADRs pass (listed here or whole-system)
 
 ## Responsable
 Emmanuel (turno 3)

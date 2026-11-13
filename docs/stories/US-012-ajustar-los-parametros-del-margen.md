@@ -1,7 +1,7 @@
 ---
 id: US-012
 title: Ajustar los parámetros del margen
-status: ready
+status: done
 priority: low
 epic: EP-004
 ---
