@@ -2,7 +2,7 @@
 
 Sistema de retención selectiva de clientes bancarios. Una red neuronal (MLP) estima la probabilidad de fuga de cada cliente y una regla financiera decide si conviene o no invertir en retenerlo.
 
-📄 **[Informe ejecutivo (PDF)](reports/informe_ejecutivo.pdf)** · 📐 **[Especificación (SRS)](docs/SRS.md)** · 📖 **[Glosario](docs/GLOSSARY.md)**
+📄 **[Informe ejecutivo (PDF)](reports/figures/informe_ejecutivo.pdf)** · 📐 **[Especificación (SRS)](docs/SRS.md)** · 📖 **[Glosario](docs/GLOSSARY.md)**
 
 ## Problema
 
@@ -31,15 +31,32 @@ Ganancia Neta Esperada = (P_fuga × Efectividad × Margen) − Costo_incentivo
 - **Arquitectura:** Dense 64 ReLU + BatchNorm + Dropout 0.3 → Dense 32 ReLU + Dropout 0.2 → Dense 1 Sigmoide.
 - **Entrenamiento:** Adam (lr 1e-3), lotes de 64, `class_weight` balanceado y Early Stopping sobre `val_loss` con paciencia 12 y restauración de los mejores pesos.
 - **Calibración:** Platt sobre la partición de validación, porque `class_weight` infla las probabilidades.
-- **Explicabilidad:** SHAP sobre la probabilidad calibrada: global (factores de fuga) y por cliente en la aplicación.
+- **Explicabilidad:** SHAP sobre la probabilidad calibrada: global (factores de fuga) y por cliente en la aplicación (pendiente, VS-009).
 
-Métricas sobre los clientes de prueba. El modelo se acepta solo si ROC-AUC ≥ 0.80, PR-AUC ≥ 0.55 y la calibración no empeora el Brier score.
+Métricas sobre los 1,500 clientes de prueba. El modelo se acepta solo si ROC-AUC ≥ 0.80, PR-AUC ≥ 0.55 y la calibración no empeora el Brier score. El modelo actual cumple los tres criterios y está **aceptado**.
 
 | Métrica | Valor |
 |---|---|
-| ROC-AUC | _pendiente_ |
-| PR-AUC | _pendiente_ |
-| Brier (sin calibrar → calibrado) | _pendiente_ |
+| ROC-AUC | 0.88 |
+| PR-AUC | 0.74 (un modelo al azar lograría ≈ 0.20) |
+| Brier (sin calibrar → calibrado) | 0.143 → 0.096 |
+
+**Factores de fuga principales** (SHAP global): edad (`Age`), número de productos (`NumOfProducts`) y miembro activo (`IsActiveMember`).
+
+## Resultados con los valores base
+
+Cifras de la Cartera completa (10,000 clientes), iguales a las del [Informe ejecutivo](reports/figures/informe_ejecutivo.pdf) y a la pestaña "Cartera" de la aplicación:
+
+| Indicador | Valor |
+|---|---|
+| Capital en riesgo crítico (P_fuga ≥ 0.65) | $67,726,842.54 |
+| Capital rescatable | $42,417,857.08 |
+| Inversión en retención | $308,950.00 en 3,855 clientes |
+| Margen salvado | $861,160.78 |
+| ROI proyectado | 178.7% (> 0 por construcción) |
+| ROI realizado (clientes de prueba, abandono real) | 180.4% |
+
+El sistema deja sin gasto a 6,145 clientes: 5,596 con Sin Acción Requerida y 549 con Salida Permitida.
 
 ## Supuestos financieros
 
@@ -69,7 +86,7 @@ Margen = Balance × 2% + NumOfProducts × $50 + HasCrCard × $30 − $60 (costo 
 
 Una sola app Streamlit con tres pestañas:
 
-- **Buscador:** consulta por `CustomerId` o con un formulario para clientes nuevos, con validación de límites de negocio. Muestra la probabilidad de fuga, el margen, la ganancia neta esperada de cada incentivo, el segmento, la decisión y la explicación SHAP.
+- **Buscador:** consulta por `CustomerId` o con un formulario para clientes nuevos, con validación de límites de negocio. Muestra la probabilidad de fuga, el margen, la ganancia neta esperada de cada incentivo, el segmento y la decisión. La explicación SHAP por cliente está pendiente (VS-009).
 - **Cartera:** clientes analizados, capital en riesgo, capital en riesgo crítico, capital rescatable, inversión, margen salvado, ROI, fugas evitadas esperadas y la matriz por segmento. Incluye un filtro para ver solo los clientes de prueba, con el ROI realizado según el abandono real.
 - **Simulador:** costo y efectividad de cada incentivo y parámetros del margen. Los cambios se aplican a las tres pestañas, duran solo la sesión y se pueden restablecer a los valores base.
 
@@ -87,9 +104,11 @@ deep-retention/
 │   ├── 01_eda.ipynb        # exploración y detección de fuga de datos
 │   └── 02_train.ipynb      # entrenamiento, evaluación y SHAP (Google Colab)
 ├── reports/
-│   ├── figures/
-│   ├── informe.md
-│   └── informe_ejecutivo.pdf
+│   └── figures/
+│       ├── informe.md            # informe ejecutivo en Markdown
+│       ├── informe_ejecutivo.pdf # informe generado con pandoc
+│       ├── reliability.png       # curva de fiabilidad (calibración)
+│       └── shap_summary.png      # factores de fuga globales (SHAP)
 ├── src/                    # toda la lógica
 │   ├── config.py           # rutas y semilla
 │   ├── preprocessing.py    # carga, variables excluidas, particiones, preprocesador
@@ -174,7 +193,7 @@ Generar el informe en PDF:
 
 ```bash
 python -m src.report            # imprime las cifras del informe
-pandoc reports/informe.md -o reports/informe_ejecutivo.pdf --pdf-engine=xelatex --resource-path=reports
+pandoc reports/figures/informe.md -o reports/figures/informe_ejecutivo.pdf --pdf-engine=xelatex --resource-path=reports
 ```
 
 ### Despliegue en Streamlit Community Cloud
